@@ -1,0 +1,39 @@
+import pickle
+import pandas as pd
+import numpy as np
+import sklearn
+from sklearn import linear_model
+from sklearn.utils import shuffle
+
+dientes = pd.read_csv('datos_dientes.csv',encoding='latin1')
+#dientes = dientes[0:50]
+predict='final'
+dientes = dientes.fillna(0)
+dientes
+
+x=dientes[['apli1', 'apli2', 'apli3', 'apli4','sesiones']]
+y=np.array(dientes[predict])
+
+best = 9083679186818859
+for p in range(1):
+    x_train, x_test, y_train, y_test = sklearn.model_selection.train_test_split(x,y,test_size=0.1)
+    linear = linear_model.LinearRegression()
+    linear.fit(x_train,y_train)
+    acc=linear.score(x_test,y_test)    
+    if acc>best:
+        best = acc
+        with open("dientes.pickle",'wb') as f:
+            pickle.dump(linear, f)
+print('the best acc was: {}'.format(best))
+pickle_in = open("dientes.pickle",'rb')
+linear = pickle.load(pickle_in)
+
+predictions = linear.predict(x_test)
+#predictions = predictions.round(0)
+predictions = predictions.astype(int)
+y_test = y_test.astype(int)
+for p in range(len(predictions)):
+    a=x_test.iloc[[p]].values
+    print(predictions[p],'|',y_test[p],'|',a)
+    
+    
